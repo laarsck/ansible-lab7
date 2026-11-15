@@ -1,6 +1,10 @@
 ---
 - name: Check config Nginx
-  ansible.builtin.command: /usr/sbin/nginx -t
+  ansible.builtin.command:
+    argv:
+      - /usr/sbin/nginx
+      - -t
+    expand_argument_vars: false
   changed_when: false
   listen: Reload Nginx
 
