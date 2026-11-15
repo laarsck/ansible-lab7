@@ -1,0 +1,43 @@
+---
+- name: Download Nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Create sites catalogs
+  ansible.builtin.file:
+    path: "/var/www/{{ item }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ sites }}"
+
+- name: Create sites folders from templates
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: "/var/www/{{ item }}/index.html"
+    mode: "0644"
+  loop: "{{ sites }}"
+
+- name: Create config sites
+  ansible.builtin.template:
+    src: vhost.conf.j2
+    dest: "/etc/nginx/sites-available/{{ item }}.conf"
+    mode: "0644"
+  loop: "{{ sites }}"
+  notify: Reload Nginx
+
+- name: Sites on
+  ansible.builtin.file:
+    src: "/etc/nginx/sites-available/{{ item }}.conf"
+    dest: "/etc/nginx/sites-enabled/{{ item }}.conf"
+    state: link
+  loop: "{{ sites }}"
+  notify: Reload Nginx
+
+- name: Nginx start
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true

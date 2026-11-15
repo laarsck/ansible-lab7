@@ -1,0 +1,13 @@
+---
+- name: Open virtual sites Nginx
+  hosts: web
+  become: true
+
+  vars:
+    sites:
+      - mehmat.ru
+      - fizfak.ru
+      - etis.com
+
+  roles:
+    - nginx_vhosts
